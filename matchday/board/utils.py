@@ -37,3 +37,12 @@ def get_centered_pos(device, text, font, xoffs=0, yoffs=0):
     x = (device.width - size[0]) / 2
     y = (device.height - size[1]) / 2
     return (x + xoffs, y + yoffs)
+
+
+def get_centered_pos_draw(width, height, text, font, xoffs=0, yoffs=0):
+    """Returns the start position to render a centered text.
+    """
+    size = llegacy.textsize(text, font)
+    x = (width - size[0]) / 2
+    y = (height - size[1]) / 2
+    return (x + xoffs, y + yoffs)
