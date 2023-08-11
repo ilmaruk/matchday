@@ -14,6 +14,7 @@ def goal(device, font, who):
         lfont.proportional(lfont.CP437_FONT),
         lfont.proportional(lfont.LCD_FONT),
         lfont.proportional(lfont.SINCLAIR_FONT),
+        lfont.proportional(lfont.ATARI_FONT),
     ]
     for i in range(12):
         fg = random.choice(["white", "black"])
