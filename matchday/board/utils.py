@@ -34,15 +34,6 @@ def get_centered_pos(device, text, font, xoffs=0, yoffs=0):
     """Returns the start position to render a centered text.
     """
     size = llegacy.textsize(text, font)
-    x = round((device.width - size[0]) / 2, 0)
-    y = round((device.height - size[1]) / 2, 0)
-    return (x + xoffs, y + yoffs)
-
-
-def get_centered_pos_virtual(virtual, text, font, xoffs=0, yoffs=0):
-    """Returns the start position to render a centered text.
-    """
-    size = llegacy.textsize(text, font)
-    x = (width - size[0]) / 2
-    y = (height - size[1]) / 2
+    x = int((device.width - size[0] + 1) / 2)
+    y = int((device.height - size[1] + 1) / 2)
     return (x + xoffs, y + yoffs)

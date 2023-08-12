@@ -1,5 +1,7 @@
 import datetime
+import logging
 import random
+import sys
 import time
 
 import luma.core.legacy as llegacy
@@ -34,13 +36,14 @@ def seconds_to_str(seconds: float) -> str:
     return f"{seconds:02.2f}"
 
 
-def draw(virtual, text: str, score: mmodels.Score):
+def draw(virtual, clock: mmodels.Clock, score: mmodels.Score):
     """Draws clock and score on a virtual 2-lined display.
     """
     with lrender.canvas(virtual) as draw:
         # Clock
-        pos = get_centered_pos(virtual, text, clock_font)
-        llegacy.text(draw, (pos[0], 0), text, fill="white", font=clock_font)
+        clock_str = str(clock)
+        pos = get_centered_pos(virtual, clock_str, clock_font)
+        llegacy.text(draw, (pos[0], 0), clock_str, fill="white", font=clock_font)
 
         # Score
         s = str(score)
@@ -66,52 +69,47 @@ def is_goal(prob: float) -> int:
     """Returns the id of the scorer of -1 if no goal happened.
     Biased :D
     """
+    return -1
     if random.random() > prob:
         return -1
 
-    # return random.randint(0, 1)
-    return 0
+    return random.randint(0, 1)
 
 
 def clock(device, duration: int, start: datetime.datetime, font, with_score=True, delay=.1):
     prob = 3 / 60 / 90 * duration * delay
     score = mmodels.Score()
-    clock = mmodels.Clock(duration)
-    text = seconds_to_str(duration)
-
-    clock.start()
-    print("GO GO GO!")
+    clock = mmodels.Clock()
 
     view = 0
 
     virtual = lvirtual.viewport(
         device, width=device.width, height=device.height*2)
-    # draw(virtual, text, score)
-    draw(virtual, str(clock), score)
+    draw(virtual, clock, score)
+
+    clock.start(duration)
+    logging.info("GO GO GO!")
 
     tick = 0
     while True:
-        now = datetime.datetime.now()
-        diff = (now - start).total_seconds()
-        if diff >= duration:
-            break
-        text = seconds_to_str(duration - diff)
-
-        # draw(virtual, text, score)
-        draw(virtual, str(clock), score)
+        draw(virtual, clock, score)
 
         tick += 1
         if with_score and tick % 50 == 0:
+            logging.info(str(clock))
             view = switch_view(virtual, view)
 
         who = is_goal(prob)
         if who != -1:
             score.goal(who)
             goal(device, None, ["home", "away"][who])
-            # draw(virtual, text, score)
-            draw(virtual, str(clock), score)
+            draw(virtual, clock, score)
             if view == CLOCK_VIEW:
                 view = switch_view(virtual, view)
+
+        clock.update()
+        if not clock.is_running():
+            break
 
         time.sleep(delay)
 
@@ -121,8 +119,18 @@ def clock(device, duration: int, start: datetime.datetime, font, with_score=True
 
     display_centered(device, str(score), score_font)
     time.sleep(4)
+    logging.info("bye")
 
 
 if __name__ == "__main__":
+    root = logging.getLogger()
+    root.setLevel(logging.DEBUG)
+
+    handler = logging.StreamHandler(sys.stdout)
+    handler.setLevel(logging.DEBUG)
+    formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+    handler.setFormatter(formatter)
+    root.addHandler(handler)
+
     device = init_device()
     clock(device, 90, datetime.datetime.now(), the_font, with_score=True)

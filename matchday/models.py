@@ -36,28 +36,35 @@ class Score:
 
 
 class Clock:
-    def __init__(self, duration: int) -> None:
-        self._duration = duration
+    def __init__(self) -> None:
+        self._duration = 0
         self._started_at = None
+        self._seconds = 0
+        self._running = False
 
-    def start(self) -> None:
+    def start(self, duration: int) -> None:
+        self._duration = duration
         self._started_at = datetime.datetime.now()
+        self._seconds = self._duration
+        self._running = True
 
-    def is_over(self) -> bool:
-        return self._diff() >= self._duration
+    def update(self, now: datetime.datetime = None) -> None:
+        if now is None:
+            now = datetime.datetime.now()
+        diff = (now - self._started_at).total_seconds()
+        self._seconds = self._duration - diff
+        self._running = diff < self._duration
+    
+    def is_running(self) -> bool:
+        return self._running
 
     def __str__(self) -> str:
-        seconds = self._duration - self._diff()
-        if seconds >= 60:
-            s = round(seconds, 0)
+        if self._seconds >= 60:
+            s = round(self._seconds, 0)
             mins = int(s / 60)
             secs = int(s % 60)
             text = f"{mins:02d}:{secs:02d}"
         else:
-            text = f"{seconds:02.2f}"
+            text = f"{self._seconds:02.2f}"
 
         return text.replace("0", "O")
-
-    def _diff(self) -> float:
-        now = datetime.datetime.now()
-        return (now - self._started_at).total_seconds()
