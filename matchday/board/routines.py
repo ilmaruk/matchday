@@ -19,7 +19,7 @@ def goal(device, font, who):
         fg = random.choice(["white", "black"])
         bg = "white" if fg == "black" else "black"
         with lrender.canvas(device) as draw:
-            draw.rectangle([(0, 0), (31, 7)], fill=bg)
+            draw.rectangle([(0, 0), (device.width-1, device.height-1)], fill=bg)
             txt = texts[i % 2]
             font = random.choice(fonts)
             pos = get_centered_pos(device, txt, font)

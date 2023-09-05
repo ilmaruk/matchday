@@ -6,9 +6,10 @@ import luma.core.legacy.font as lfont
 import luma.core.render as lrender
 
 
-def init_device():
+def init_device(cascaded: int = 4):
     serial = spi(port=0, device=0, gpio=noop())
-    device = max7219(serial, cascaded=4, block_orientation=-90, rotate=2)
+    device = max7219(serial, cascaded=cascaded,
+                     block_orientation=-90, rotate=0)
     device.contrast(1)
     print("Board initialised")
     return device
@@ -33,7 +34,7 @@ def display_centered(device, text, font, fg="white", bg="black", xoffs=0, yoffs=
 def get_centered_pos(device, text, font, xoffs=0, yoffs=0):
     """Returns the start position to render a centered text.
     """
-    size = llegacy.textsize(text, font)
-    x = (device.width - size[0]) / 2
-    y = (device.height - size[1]) / 2
+    w, h = llegacy.textsize(text, font)
+    x = int((device.width - (w - 1)) / 2)
+    y = int((device).height - (h - 1)) / 2
     return (x + xoffs, y + yoffs)
